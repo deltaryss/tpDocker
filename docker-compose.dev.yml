@@ -1,0 +1,35 @@
+version: '1'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "81:80"  # Faites correspondre le port du conteneur au port de l'hôte
+    depends_on:
+      - db  # Dépend du service de la base de données
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./dbDev:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: db  # Modifier "database" en "db"
+      PMA_PORT: 3307
+      PMA_USER: root
+      PMA_PASSWORD: root
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
